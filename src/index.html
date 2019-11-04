@@ -6,6 +6,7 @@
         <link rel="stylesheet" />
         <script src="js/lib/Chart.js"></script>
         <script src="js/lib/jquery-3.4.1.min.js"></script>
+        <script src="js/jq-charter.js"></script>
 
         <script type="text/javascript">
             
@@ -17,15 +18,12 @@
                         'set 1': [1,2,3,4,5,6],
                         'set 2': [3,1,1,5,3,7]
                     },
-                    options: {
-
-                    },
+                    options: {},
                     labels: ['a','b','c','d','e','f'],
                     type: 'bar',
                 };
 
-                $("#mychart").chartify();
-                
+                $("#mychart").chartify(opts);
             });
 
         </script>

@@ -4,15 +4,21 @@
  * 
  * Creating charts on already instanced charts will instead
  * invoke an update with new options and data.
+ * Updating a chart that doesn't exist creates it instead.
  * Destroying a chart uses Chart.js' destroy function to
  * return your canvas to pre-init state.
+ * You can gain access to the Chart js instances by using
+ * the `getInstances` action.
  * 
  * Creating a chart:
- * `$(element).chartify(options);`
+ * `$(element).chartify(options);` OR
+ * `$(element).chartify('create', options);`
  * Updating a chart:
  * `$(element).chartify('update', options);`
  * Destroying a chart:
  * `$(element).chartify('destroy');`
+ * Get the current chart instances:
+ * `$(element).chartify('getInstances');`
  */
 var chartifyDefaults = {
     chartColours: [],
@@ -25,19 +31,51 @@ var chartifyDefaults = {
 
     // functions
     fn = {
-        create: function() {
+        // utils
+        newDataset: function(i, colour, data) {
+            var set = {};
+
+            var label = Object.keys(data)[0],
+                dataArray = data[label];
+        },
+
+        // Main
+        create: function(elem, options) {
             // Create a chart
+            var ctx = elem.getContext('2d'),
+                id = elem.id,
+                opts = options.options,
+                data = options.data,
+                charttype = options.type;
+
+            // Get data and options
+            if (typeof data === "function") data = data();
+            if (typeof opts === "function") opts = opts();
+
+            // Finally create chart and add to store
+            charts[id] = new charts(ctx, {type: charttype, data: data, options: opts});
         },
-        update: function() {
+        update: function(elem, options) {
             // Update the instance
+            var id = elem.id,
+                opts = options.options,
+                data = options.data,
+                charttype = options.type,
+                currentInstance = charts[id];
+
+            // Get data and options
+            if (typeof data === "function") data = data();
+            if (typeof opts === "function") opts = opts();
+
+            // Finally create chart and add to store
+            if (opts || charttype) {
+                // Need to destroy and remake
+            } else {
+                // Just update the data
+            }
         },
-        destroy: function() {
+        destroy: function(elem) {
             // Destroy the chart instance attached to this chart.
-        },
-        getInstance: function(id) {
-            // Getting chart instances
-            if (!id) return charts;
-            return charts[id];
         },
     };
 
@@ -55,17 +93,11 @@ var chartifyDefaults = {
          * Options should be object with:
          * - `type`: String chart type.
          * - `options`: Chart js options object OR function to return such.
-         * - `data`: Object of `{label: dataArray}` OR function returning such.
-         * - `dataOrder`: Array of string `labels` matching `data` keys to explicitly specify an order.
-         *  (typically used for matching colour array with specific data)
-         * - `colours`: Array of colours to use in place of defaults.
-         * - `labels`: Labels for X axis. (E.g. dates)
+         * - `data`: Object matching Chart js data OR function returning such.
          */
-        if (action === "getInstance")
-            return 
+        if (action === "getInstances") return charts;
         return this.each(function() {
             var id = this.id;
-            console.log("my id is:", id);
             if (!id) throw Error("Element has no unique ID.");
 
             if (typeof action === "object" && !Array.isArray(action)) {
