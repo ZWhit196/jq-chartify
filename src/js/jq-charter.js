@@ -23,22 +23,11 @@
 var chartifyDefaults = {
     chartColours: [],
 };
-
 (function($) {
     // Chart storage, can be exposed with a call.
     var charts = {};
-    // default values
-
     // functions
     fn = {
-        // utils
-        newDataset: function(i, colour, data) {
-            var set = {};
-
-            var label = Object.keys(data)[0],
-                dataArray = data[label];
-        },
-
         // Main
         create: function(elem, options) {
             // Create a chart
@@ -47,13 +36,12 @@ var chartifyDefaults = {
                 opts = options.options,
                 data = options.data,
                 charttype = options.type;
-
             // Get data and options
             if (typeof data === "function") data = data();
             if (typeof opts === "function") opts = opts();
 
             // Finally create chart and add to store
-            charts[id] = new charts(ctx, {type: charttype, data: data, options: opts});
+            charts[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
         },
         update: function(elem, options) {
             // Update the instance
@@ -67,18 +55,31 @@ var chartifyDefaults = {
             if (typeof data === "function") data = data();
             if (typeof opts === "function") opts = opts();
 
+            // Create if undef
+            if (!currentInstance) {
+                charts[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
+                return;
+            }
+
             // Finally create chart and add to store
             if (opts || charttype) {
-                // Need to destroy and remake
+                // Need to destroy and remake for options or type
+                currentInstance.destroy();
+                charts[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
             } else {
-                // Just update the data
+                // Just update the data for data only
+                currentInstance.data = data;
+                currentInstance.update();
             }
         },
         destroy: function(elem) {
             // Destroy the chart instance attached to this chart.
+            var id = elem.id,
+                currentInstance = charts[id];
+
+            if (currentInstance) currentInstance.destroy();
         },
     };
-
     // plugin
     $.fn.chartify = function(action, options) {
         /**
@@ -101,7 +102,7 @@ var chartifyDefaults = {
             if (!id) throw Error("Element has no unique ID.");
 
             if (typeof action === "object" && !Array.isArray(action)) {
-                fn.create(this, options);  // init
+                fn.create(this, action);  // init
             } else {
                 switch (action) {
                     case "create":
@@ -121,5 +122,4 @@ var chartifyDefaults = {
             }
         });
     };
-
 })(jQuery);

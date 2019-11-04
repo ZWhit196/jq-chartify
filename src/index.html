@@ -3,34 +3,33 @@
     <head>
         <title>jq and Chart js</title>
 
-        <link rel="stylesheet" />
+        <link rel="stylesheet" href="css/style.css"/>
         <script src="js/lib/Chart.js"></script>
         <script src="js/lib/jquery-3.4.1.min.js"></script>
         <script src="js/jq-charter.js"></script>
 
         <script type="text/javascript">
-            
             $(function() {
                 console.log("Make a chart thing.");
-
                 var opts = {
                     data: {
-                        'set 1': [1,2,3,4,5,6],
-                        'set 2': [3,1,1,5,3,7]
+                        labels: ['a','b','c','d','e','f'],
+                        datasets: [
+                            {
+                                label: "test",
+                                data: [1,2,3,4,5]
+                            }
+                        ]
                     },
                     options: {},
-                    labels: ['a','b','c','d','e','f'],
                     type: 'bar',
                 };
-
                 $("#mychart").chartify(opts);
             });
-
         </script>
     </head>
 
     <body>
-
         <h1>Chart.js Combined with jQuery</h1>
 
         <h2>Chart it!</h2>
@@ -39,6 +38,5 @@
         <div>
             <canvas id="mychart"></canvas>
         </div>
-
     </body>
 </html>
