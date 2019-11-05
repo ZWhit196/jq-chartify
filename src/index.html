@@ -17,14 +17,47 @@
                         datasets: [
                             {
                                 label: "test",
-                                data: [1,2,3,4,5]
+                                data: [1,2,3,4,5],
+                                backgroundColor: '#333',
+                                borderColor: '#000',
+                                borderWidth: 0,
                             }
                         ]
                     },
-                    options: {},
+                    options: {
+                        legend: {
+                            labels: {usePointStyle: true}
+                        }
+                    },
                     type: 'bar',
                 };
                 $("#mychart").chartify(opts);
+
+
+                setTimeout(function() {
+                    var opts = {
+                        data: {
+                            labels: ['a','b','c','d','e'],
+                            datasets: [
+                                {
+                                    label: "test",
+                                    data: [3,2,3,7,5],
+                                    backgroundColor: 'rgb(255, 0, 255)',
+                                    borderColor: '#000',
+                                    borderWidth: 0,
+                                }
+                            ]
+                        }
+                    };
+
+                    console.log($('#mychart').chartify('getInstances'));
+
+                    $('#mychart').chartify('update', opts);
+
+                    setTimeout(function() {
+                        $("#mychart").chartify('destroy');
+                    }, 2000);
+                }, 2000);
             });
         </script>
     </head>
