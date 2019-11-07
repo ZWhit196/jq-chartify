@@ -42,7 +42,8 @@
         },
         update: function(elem, options) {
             // Update the instance
-            var id = elem.id,
+            var ctx = elem.getContext('2d'),
+				id = elem.id,
                 opts = options.options,
                 data = options.data,
                 charttype = options.type,
