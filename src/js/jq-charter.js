@@ -20,9 +20,6 @@
  * Get the current chart instances:
  * `$(element).chartify('getInstances');`
  */
-var chartifyDefaults = {
-    chartColours: [],
-};
 (function($) {
     // Chart storage, can be exposed with a call.
     var charts = {};
