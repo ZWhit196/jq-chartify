@@ -100,7 +100,8 @@
             if (!id) throw Error("Element has no unique ID.");
 
             if (typeof action === "object" && !Array.isArray(action)) {
-                fn.create(this, action);  // init
+                if (charts[id]) fn.update(this, options);
+                else fn.create(this, options);  // init
             } else {
                 switch (action) {
                     case "create":
