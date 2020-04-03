@@ -118,6 +118,8 @@
 
                 if (charts[id]) fn.update(this, action);
                 else fn.create(this, action, id);  // init
+            } else if (action === 'instance') {
+                return charts[id];
             } else {
                 switch (action) {
                     case "create":
