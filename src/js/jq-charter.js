@@ -110,6 +110,7 @@
          * - `data`: Object matching Chart js data OR function returning such.
          */
         if (action === "getInstances") return charts;
+        if (action === 'instance') return charts[id];
         return this.each(function() {
             var id = $(this).data('jcid');
 
@@ -118,8 +119,6 @@
 
                 if (charts[id]) fn.update(this, action);
                 else fn.create(this, action, id);  // init
-            } else if (action === 'instance') {
-                return charts[id];
             } else {
                 switch (action) {
                     case "create":
