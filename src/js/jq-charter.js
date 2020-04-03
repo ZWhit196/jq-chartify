@@ -110,7 +110,7 @@
          * - `data`: Object matching Chart js data OR function returning such.
          */
         if (action === "getInstances") return charts;
-        if (action === 'instance') return charts[id];
+        if (action === 'instance' && $(this).length === 1) return charts[$(this).data('jcid')];
         return this.each(function() {
             var id = $(this).data('jcid');
 
