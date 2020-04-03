@@ -24,12 +24,12 @@
     // Chart storage, can be exposed with a call.
     var charts = {};
     // functions
-    fn = {
+    var fn = {
         // Main
-        create: function(elem, options) {
+        create: function(elem, options, id) {
             // Create a chart
+            $(elem).data('jcid', id);
             var ctx = elem.getContext('2d'),
-                id = elem.id,
                 opts = options.options,
                 data = options.data,
                 charttype = options.type;
@@ -43,7 +43,7 @@
         update: function(elem, options) {
             // Update the instance
             var ctx = elem.getContext('2d'),
-				id = elem.id,
+				id = $(elem).data('jcid'),
                 opts = options.options,
                 data = options.data,
                 charttype = options.type,
@@ -52,6 +52,10 @@
             // Get data and options
             if (typeof data === "function") data = data();
             if (typeof opts === "function") opts = opts();
+
+            // To prevent data disappearing when not given on update, 
+            // use the instances current set.
+            if (!data) data = currentInstance.data;
 
             // Create if undef
             if (!currentInstance) {
@@ -72,10 +76,21 @@
         },
         destroy: function(elem) {
             // Destroy the chart instance attached to this chart.
-            var id = elem.id,
+            var id = $(elem).data('jcid'),
                 currentInstance = charts[id];
 
             if (currentInstance) currentInstance.destroy();
+            delete currentInstance;
+            delete charts[id];
+        },
+        // util
+        genID: function() {
+            var b = 'jc';
+            var t = Date.now();
+
+            while (charts[b+t]) { t = Date.now(); }
+
+            return b + t;
         },
     };
     // plugin
@@ -96,12 +111,13 @@
          */
         if (action === "getInstances") return charts;
         return this.each(function() {
-            var id = this.id;
-            if (!id) throw Error("Element has no unique ID.");
+            var id = $(this).data('jcid');
 
             if (typeof action === "object" && !Array.isArray(action)) {
+                if (!id) id = fn.genID();
+
                 if (charts[id]) fn.update(this, action);
-                else fn.create(this, action);  // init
+                else fn.create(this, action, id);  // init
             } else {
                 switch (action) {
                     case "create":
