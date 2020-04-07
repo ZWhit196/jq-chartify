@@ -11,14 +11,14 @@
  * the `getInstances` action.
  * 
  * Creating a chart:
- * `$(element).chartify(options);` OR
- * `$(element).chartify('create', options);`
+ * `$(element).chartify(options);`
  * Updating a chart:
  * `$(element).chartify('update', options);`
+ * `$(element).chartify(options);`  (Same as creation, but detects existing instance)
  * Destroying a chart:
  * `$(element).chartify('destroy');`
- * Get the current chart instances:
- * `$(element).chartify('getInstances');`
+ * Get the current charts instance:
+ * `$(element).chartify('instance');`
  */
 (function($) {
     
@@ -55,7 +55,6 @@
                     return $.chartify.getInstance(id);
                 case "update":
                     if ($.chartify.getInstance(id)) $.chartify.update($target, options);
-                    else $.chartify.create($target, options);
                     break;
                 case "destroy":
                     if ($.chartify.getInstance(id)) $.chartify.destroy($target);
