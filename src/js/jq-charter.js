@@ -54,11 +54,11 @@
                     // Returns chart instance.
                     return $.chartify.getInstance(id);
                 case "update":
-                    if (charts[id]) $.chartify.update($target, options);
+                    if ($.chartify.getInstance(id)) $.chartify.update($target, options);
                     else $.chartify.create($target, options);
                     break;
                 case "destroy":
-                    if (charts[id]) $.chartify.destroy($target);
+                    if ($.chartify.getInstance(id)) $.chartify.destroy($target);
                     break;
                 default: 
                     console.warn("Unrecognised action, ignoring.");
