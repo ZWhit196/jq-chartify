@@ -9,15 +9,22 @@
         <script src="js/jq-charter.js"></script>
 
         <script type="text/javascript">
-            $(function() {
-                console.log("Make a chart thing.");
+            function randoms() {
+                var x = [1,2,3,4,5];
+
+                return x.map(function(y) {
+                    return Math.ceil(Math.random() * 100);
+                });
+            }
+
+            function getopts() {
                 var opts = {
                     data: {
                         labels: ['a','b','c','d','e','f'],
                         datasets: [
                             {
                                 label: "test",
-                                data: [1,2,3,4,5],
+                                data: randoms(),
                                 backgroundColor: '#333',
                                 borderColor: '#000',
                                 borderWidth: 0,
@@ -31,33 +38,23 @@
                     },
                     type: 'bar',
                 };
-                $("#mychart").chartify(opts);
+                return opts;
+            }
 
+            $(function() {
+                function chartit() {
+                    for (var i=0; i<3; i++) {
+                        var id = '#mychart' + i;
 
-                setTimeout(function() {
-                    var opts = {
-                        data: {
-                            labels: ['a','b','c','d','e'],
-                            datasets: [
-                                {
-                                    label: "test",
-                                    data: [3,2,3,7,5],
-                                    backgroundColor: 'rgb(255, 0, 255)',
-                                    borderColor: '#000',
-                                    borderWidth: 0,
-                                }
-                            ]
-                        }
-                    };
+                        $(id).chartify(getopts());
+                    }
+                }
+                
+                chartit();
 
-                    console.log($('#mychart').chartify('getInstances'));
-
-                    $('#mychart').chartify('update', opts);
-
-                    setTimeout(function() {
-                        // $("#mychart").chartify('destroy');
-                    }, 2000);
-                }, 2000);
+                $('#update-btn').on('click', function() {
+                    chartit();
+                });
             });
         </script>
     </head>
@@ -67,9 +64,16 @@
 
         <h2>Chart it!</h2>
         <p>Create a chart from scratch with a single canvas, using jQuery to make things easier.</p>
+        <button id="update-btn">Update</button>
 
         <div>
-            <canvas id="mychart"></canvas>
+            <canvas id="mychart0"></canvas>
+        </div>
+        <div>
+            <canvas id="mychart1"></canvas>
+        </div>
+        <div>
+            <canvas id="mychart2"></canvas>
         </div>
     </body>
 </html>

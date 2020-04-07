@@ -21,33 +21,77 @@
  * `$(element).chartify('getInstances');`
  */
 (function($) {
-    // Chart storage, can be exposed with a call.
-    var charts = {};
-    // functions
-    var fn = {
-        // Main
+    
+    
+    // plugin
+    $.fn.chartify = function(action, options) {
+        /**
+         * Action as an object is essentially the `create` action.
+         * Action Strings can be:
+         * - `instance`: Gets the chart instance from the element.
+         * - `update`: To update a chart with an alternative data set or options.
+         *  (Options requires destroying the chart)
+         * - `destroy`: Removes the chart instance.
+         * 
+         * Options should be object with:
+         * - `type`: String chart type.
+         * - `options`: Chart js options object OR function to return such.
+         * - `data`: Object matching Chart js data OR function returning such.
+         */
+        var $target = this;
+        if (this.length > 1) $target = $($target[0]);
+        var id = $target.data('jcid');
+
+
+        if (typeof action === "object" && !Array.isArray(action)) {
+            if (!id) id = $.chartify.genID();
+
+            if ($.chartify.getInstance(id)) $.chartify.update($target, action);
+            else $.chartify.create($target, action, id);  // init
+        } else {
+            switch (action) {
+                case "instance":
+                    // Returns chart instance.
+                    return $.chartify.getInstance(id);
+                case "update":
+                    if (charts[id]) $.chartify.update($target, options);
+                    else $.chartify.create($target, options);
+                    break;
+                case "destroy":
+                    if (charts[id]) $.chartify.destroy($target);
+                    break;
+                default: 
+                    console.warn("Unrecognised action, ignoring.");
+            }
+        }
+        return this;
+    };
+    $.chartify = {
+        // var
+        _instances: {},
+        // func
         create: function(elem, options, id) {
             // Create a chart
-            $(elem).data('jcid', id);
-            var ctx = elem.getContext('2d'),
-                opts = options.options,
-                data = options.data,
-                charttype = options.type;
+            elem.data('jcid', id);
+            var ctx = elem[0].getContext('2d');
+            var opts = options.options;
+            var data = options.data;
+            var charttype = options.type;
             // Get data and options
             if (typeof data === "function") data = data();
             if (typeof opts === "function") opts = opts();
 
             // Finally create chart and add to store
-            charts[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
+            $.chartify._instances[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
         },
         update: function(elem, options) {
             // Update the instance
-            var ctx = elem.getContext('2d'),
-				id = $(elem).data('jcid'),
-                opts = options.options,
-                data = options.data,
-                charttype = options.type,
-                currentInstance = charts[id];
+            var ctx = elem[0].getContext('2d');
+			var id = elem.data('jcid');
+            var opts = options.options;
+            var data = options.data;
+            var charttype = options.type;
+            var currentInstance = $.chartify.getInstance(id);
 
             // Get data and options
             if (typeof data === "function") data = data();
@@ -59,7 +103,7 @@
 
             // Create if undef
             if (!currentInstance) {
-                charts[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
+                $.chartify._instances[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
                 return;
             }
 
@@ -67,7 +111,7 @@
             if (opts || charttype) {
                 // Need to destroy and remake for options or type
                 currentInstance.destroy();
-                charts[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
+                $.chartify._instances[id] = new Chart(ctx, {type: charttype, data: data, options: opts});
             } else {
                 // Just update the data for data only
                 currentInstance.data = data;
@@ -76,66 +120,25 @@
         },
         destroy: function(elem) {
             // Destroy the chart instance attached to this chart.
-            var id = $(elem).data('jcid'),
-                currentInstance = charts[id];
+            var id = elem.data('jcid');
+            var currentInstance = $.chartify.getInstance(id);
 
             if (currentInstance) currentInstance.destroy();
             delete currentInstance;
-            delete charts[id];
+            delete $.chartify._instances[id];
         },
         // util
         genID: function() {
             var b = 'jc';
             var t = Date.now();
 
-            while (charts[b+t]) { t = Date.now(); }
+            while ($.chartify._instances[b+t]) { t = Date.now(); }
 
             return b + t;
         },
-    };
-    // plugin
-    $.fn.chartify = function(action, options) {
-        /**
-         * Action as an object is essentially the `create` action.
-         * Action Strings can be:
-         * - `create`: Same as action as object, initialises a new chart on element.
-         * - `update`: To update a chart with an alternative data set or options.
-         *  (Options requires destroying the chart)
-         * - `getInstance`: Gets the chart instance from the element.
-         * - `destroy`: Removes the chart instance.
-         * 
-         * Options should be object with:
-         * - `type`: String chart type.
-         * - `options`: Chart js options object OR function to return such.
-         * - `data`: Object matching Chart js data OR function returning such.
-         */
-        if (action === "getInstances") return charts;
-        if (action === 'instance' && $(this).length === 1) return charts[$(this).data('jcid')];
-        return this.each(function() {
-            var id = $(this).data('jcid');
-
-            if (typeof action === "object" && !Array.isArray(action)) {
-                if (!id) id = fn.genID();
-
-                if (charts[id]) fn.update(this, action);
-                else fn.create(this, action, id);  // init
-            } else {
-                switch (action) {
-                    case "create":
-                        if (charts[id]) fn.update(this, options);
-                        else fn.create(this, options);
-                        break;
-                    case "update":
-                        if (charts[id]) fn.update(this, options);
-                        else fn.create(this, options);
-                        break;
-                    case "destroy":
-                        if (charts[id]) fn.destroy(this);
-                        break;
-                    default: 
-                        console.warn("Unrecognised action, ignoring.");
-                }
-            }
-        });
+        getInstance: function(id) {
+            // Return the chart object (or undefined)
+            return $.chartify._instances[id];
+        },
     };
 })(jQuery);
